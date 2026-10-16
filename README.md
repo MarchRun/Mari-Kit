@@ -27,7 +27,7 @@ Current areas of development include:
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/MariKit.git
+git clone https://github.com/MarchRun/MariKit.git
 cd MariKit
 npm install
 ```
@@ -93,4 +93,6 @@ If you want to contribute code, open an issue first so the proposed change can b
 
 ## License
 
-Add the selected license here after a `LICENSE` file has been included in the repository.
+## License
+
+MariKit is available under the [MIT License](LICENSE).
