@@ -93,6 +93,4 @@ If you want to contribute code, open an issue first so the proposed change can b
 
 ## License
 
-## License
-
 MariKit is available under the [MIT License](LICENSE).
