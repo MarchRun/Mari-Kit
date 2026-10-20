@@ -11,7 +11,10 @@
           <NuxtLink to="/#tools" class="bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-neutral-200 transition">
             Access Tools
           </NuxtLink>
-          <button class="border border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-neutral-800 transition">
+          <button
+            type="button"
+            class="rounded-xl border border-white px-8 py-3 font-bold text-white transition hover:bg-neutral-800"
+          >
             Download
           </button>
         </div>

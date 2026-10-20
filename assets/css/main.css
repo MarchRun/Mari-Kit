@@ -96,6 +96,11 @@ html {
   animation: orbit-pulse 3s ease-in-out infinite;
 }
 
+:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 4px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .orbital-rings__orbit,
   .orbital-rings__core {

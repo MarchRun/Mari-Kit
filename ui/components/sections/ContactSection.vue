@@ -1,36 +1,86 @@
 <template>
-  <section id="contact" class="h-screen box-border overflow-hidden px-4 bg-neutral-900 relative">
+    <section
+      id="contact"
+      aria-label="Contact"
+      class="relative min-h-[100svh] overflow-visible bg-neutral-900 px-4 md:h-screen md:min-h-0 md:overflow-hidden"
+    >
     <BackgroundPattern tone="light" />
 
-    <div class="max-w-6xl w-full mx-auto pt-36 grid grid-cols-1 md:grid-cols-2 gap-16 z-10 relative">
-      <form class="space-y-8">
-        <h2 class="text-4xl font-bold">Send a Message</h2>
-        
+    <div class="relative z-10 mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 pb-24 pt-28 md:grid-cols-2 md:gap-16 md:pb-0 md:pt-36">
+      <form class="space-y-8" @submit.prevent="handleSubmit">
+        <h2 class="text-4xl font-bold">
+          Send a Message
+        </h2>
+
         <div>
-          <label class="block text-sm mb-2 text-neutral-400">Full Name</label>
-          <input type="text" class="w-full bg-transparent border-b border-white py-2 focus:outline-none focus:border-primary-500 transition">
+          <label for="contact-name" class="mb-2 block text-sm text-neutral-400">
+            Full Name
+          </label>
+          <input
+            id="contact-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            required
+            class="w-full border-b border-white bg-transparent py-2 transition focus:border-primary-500 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
         </div>
 
         <div>
-          <label class="block text-sm mb-2 text-neutral-400">E-mail</label>
-          <input type="email" class="w-full bg-transparent border-b border-white py-2 focus:outline-none focus:border-primary-500 transition">
+          <label for="contact-email" class="mb-2 block text-sm text-neutral-400">
+            Email
+          </label>
+          <input
+            id="contact-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="w-full border-b border-white bg-transparent py-2 transition focus:border-primary-500 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          >
         </div>
 
         <div>
-          <label class="block text-sm mb-2 text-neutral-400">Message</label>
-          <textarea rows="3" class="w-full bg-transparent border-b border-white py-2 focus:outline-none focus:border-primary-500 transition"></textarea>
+          <label for="contact-message" class="mb-2 block text-sm text-neutral-400">
+            Message
+          </label>
+          <textarea
+            id="contact-message"
+            name="message"
+            rows="3"
+            maxlength="2000"
+            required
+            class="w-full border-b border-white bg-transparent py-2 transition focus:border-primary-500 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+          ></textarea>
         </div>
 
-        <button type="submit" class="bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-neutral-200 transition">
+        <button
+          type="submit"
+          class="rounded-xl bg-white px-8 py-3 font-bold text-black transition hover:bg-neutral-200"
+        >
           Contact Us
         </button>
+
+        <p
+          v-if="submissionStatus === 'unavailable'"
+          role="status"
+          aria-live="polite"
+          class="text-sm leading-relaxed text-neutral-400"
+        >
+          Message delivery is not available yet. Please use GitHub to report bugs or suggest improvements.
+        </p>
       </form>
 
       <div class="flex flex-col">
         <h2 class="text-4xl font-bold mb-8">Connect</h2>
 
-        <a href="#" class="flex items-center gap-4 text-lg hover:text-primary-400 transition mb-8">
-          <Github class="w-6 h-6" />
+        <a
+          href="https://github.com/MarchRun/MariKit"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mb-8 flex items-center gap-4 py-3 text-lg transition hover:text-primary-400"
+        >
+          <Github aria-hidden="true" class="h-6 w-6" />
           GitHub
         </a>
 
@@ -40,13 +90,24 @@
             <footer>
               <p>© 2026 MariKit. Open Source Project.</p>
               <div class="flex gap-4 mt-2">
-                <a href="#" class="hover:text-white">License</a>
-                <a href="#" class="hover:text-white">Privacy Policy</a>
+                <a
+                  href="https://github.com/MarchRun/MariKit/blob/main/LICENSE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-white"
+                >
+                  License
+                </a>
+                <span>Privacy Policy</span>
               </div>
             </footer>
 
-            <a href="#home" class="p-3 bg-white text-black rounded-xl hover:bg-neutral-200 transition">
-              <ArrowUp class="w-5 h-5" />
+            <a
+              href="#home"
+              aria-label="Back to top"
+              class="rounded-xl bg-white p-3 text-black transition hover:bg-neutral-200"
+            >
+              <ArrowUp aria-hidden="true" class="h-5 w-5" />
             </a>
           </div>
         </div>
@@ -60,5 +121,13 @@
 </template>
 
 <script setup lang="ts">
-import { Github, ArrowUp } from 'lucide-vue-next';
+import { ArrowUp, Github } from 'lucide-vue-next'
+
+type SubmissionStatus = 'idle' | 'unavailable'
+
+const submissionStatus = ref<SubmissionStatus>('idle')
+
+const handleSubmit = () => {
+  submissionStatus.value = 'unavailable'
+}
 </script>

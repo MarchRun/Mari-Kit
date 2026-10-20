@@ -4,7 +4,11 @@
     class="flex flex-col p-8 bg-black border border-white rounded-3xl transition hover:border-primary-600 hover:shadow-lg hover:shadow-primary-900/20"
   >
     <div class="mb-6">
-      <component :is="icon" class="w-10 h-10 text-white" />
+      <component
+        :is="icon"
+        aria-hidden="true"
+        class="h-10 w-10 text-white"
+      />
     </div>
 
     <h3 class="text-2xl font-bold mb-3 text-white">
