@@ -156,7 +156,7 @@ const getLinkClass = (sectionId: SectionId) => {
 const getMobileLinkClass = (sectionId: SectionId) => {
   return activeSection.value === sectionId
     ? 'bg-white text-black'
-    : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+    : 'text-neutral-300 hover:bg-neutral-800 hover:text-white'
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
