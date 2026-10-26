@@ -35,13 +35,23 @@
       <span class="mt-1 text-sm text-neutral-600">
         {{ hint }}
       </span>
+      <span class="mt-2 text-sm text-neutral-600">
+        Or paste a copied file with Ctrl+V / ⌘V when supported by your browser.
+      </span>
+      <span class="mt-2 text-sm text-neutral-600">
+        Maximum 100 MB per file{{ multiple ? ' and 100 MB combined' : '' }}.
+      </span>
     </label>
+    <p v-if="sizeError" role="alert" class="mt-3 text-sm text-red-300">
+      {{ sizeError }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, useId } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useId } from 'vue'
 import { Upload } from 'lucide-vue-next'
+import { getFileSizeError } from '~/utils/fileLimits'
 
 const props = withDefaults(
   defineProps<{
@@ -50,9 +60,11 @@ const props = withDefaults(
     hint: string
     accept?: string
     multiple?: boolean
+    currentTotalBytes?: number
   }>(),
   {
-    multiple: false
+    multiple: false,
+    currentTotalBytes: 0
   }
 )
 
@@ -65,6 +77,7 @@ const generatedId = useId()
 const inputId = props.id ?? generatedId
 const fileInput = ref<HTMLInputElement>()
 const isDragging = ref(false)
+const sizeError = ref('')
 
 const acceptsFile = (file: File) => {
   if (!props.accept) {
@@ -89,17 +102,29 @@ const acceptsFile = (file: File) => {
 }
 
 const processFiles = (fileList: FileList | File[]) => {
+  if (fileInput.value?.matches(':disabled')) {
+    return
+  }
+
+  sizeError.value = ''
   const incomingFiles = Array.from(fileList)
   const acceptedFiles = incomingFiles.filter(acceptsFile)
   const rejectedFiles = incomingFiles.filter(file => !acceptsFile(file))
-
-  if (acceptedFiles.length) {
-    emit('filesSelected', props.multiple ? acceptedFiles : acceptedFiles.slice(0, 1))
-  }
-
   if (rejectedFiles.length) {
     emit('filesRejected', rejectedFiles)
+    return
   }
+  const selectedFiles = props.multiple ? acceptedFiles : acceptedFiles.slice(0, 1)
+  sizeError.value = getFileSizeError(selectedFiles, props.multiple ? props.currentTotalBytes : 0)
+
+  if (sizeError.value) {
+    return
+  }
+
+  if (acceptedFiles.length) {
+    emit('filesSelected', selectedFiles)
+  }
+
 }
 
 const handleInput = (event: Event) => {
@@ -119,4 +144,53 @@ const handleDrop = (event: DragEvent) => {
     processFiles(event.dataTransfer.files)
   }
 }
+
+const handlePaste = (event: ClipboardEvent) => {
+  if (event.defaultPrevented || fileInput.value?.matches(':disabled')) {
+    return
+  }
+
+  const target = event.target
+
+  if (target instanceof HTMLElement && (
+    target.isContentEditable || target.closest('input:not([type="file"]), textarea, select, [role="textbox"]')
+  )) {
+    return
+  }
+
+  const clipboard = event.clipboardData
+
+  if (!clipboard) {
+    return
+  }
+
+  const files = Array.from(clipboard.files)
+
+  if (!files.length) {
+    for (const item of Array.from(clipboard.items)) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile()
+
+        if (file) {
+          files.push(file)
+        }
+      }
+    }
+  }
+
+  if (!files.length) {
+    return
+  }
+
+  event.preventDefault()
+  processFiles(files)
+}
+
+onMounted(() => {
+  document.addEventListener('paste', handlePaste)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('paste', handlePaste)
+})
 </script>

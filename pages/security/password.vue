@@ -69,7 +69,7 @@
 
         <p
           v-if="statusMessage"
-          role="status"
+          :role="hasError ? 'alert' : 'status'"
           aria-live="polite"
           class="text-sm text-neutral-200"
         >
@@ -92,7 +92,8 @@
           aria-live="polite"
           class="flex min-h-52 items-center justify-center rounded-2xl border border-neutral-300 bg-neutral-100 p-6 text-center text-neutral-600"
         >
-          <div>
+          <p v-if="password" class="min-w-0 select-all break-all text-lg text-neutral-950">{{ password }}</p>
+          <div v-else>
             <KeyRound
               aria-hidden="true"
               class="mx-auto mb-3 h-12 w-12 stroke-1"
@@ -106,7 +107,8 @@
 
         <AppButton
           class="mt-4 w-full"
-          disabled
+          :disabled="!password"
+          @click="copyPassword"
         >
           <Copy aria-hidden="true" class="h-4 w-4" />
           Copy Password
@@ -117,11 +119,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
+import { generatePassword } from '~/utils/security/passwordGenerator'
 import { Copy, KeyRound, RotateCcw } from 'lucide-vue-next'
 
 const passwordLength = ref('16')
 const statusMessage = ref('')
+const password = ref('')
+const hasError = ref(false)
 
 const characterOptions = reactive([
   {
@@ -163,8 +168,36 @@ const canGenerate = computed(() =>
 )
 
 const handleGenerate = () => {
-  statusMessage.value = 'Password generation is not available yet.'
+  if (!canGenerate.value) return
+  password.value = ''
+  hasError.value = false
+
+  try {
+    password.value = generatePassword(parsedLength.value, characterOptions.filter(option => option.enabled).map(option => option.key))
+    statusMessage.value = 'Password generated.'
+  } catch {
+    hasError.value = true
+    statusMessage.value = 'Unable to generate a password. Your browser must support secure random generation.'
+  }
 }
+
+const copyPassword = async () => {
+  if (!password.value) return
+  try {
+    await navigator.clipboard.writeText(password.value)
+    hasError.value = false
+    statusMessage.value = 'Password copied to the clipboard.'
+  } catch {
+    hasError.value = true
+    statusMessage.value = 'Unable to copy. Select the password and copy it manually.'
+  }
+}
+
+watch([passwordLength, characterOptions], () => {
+  password.value = ''
+  statusMessage.value = ''
+  hasError.value = false
+}, { deep: true, flush: 'sync' })
 
 const resetSettings = () => {
   passwordLength.value = '16'
@@ -174,5 +207,7 @@ const resetSettings = () => {
   }
 
   statusMessage.value = ''
+  password.value = ''
+  hasError.value = false
 }
 </script>

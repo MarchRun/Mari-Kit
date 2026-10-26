@@ -68,6 +68,26 @@ Run the test suite with:
 npm test
 ```
 
+Run the full suite once:
+
+```bash
+npm test -- --run
+```
+
+Run type checking:
+
+```bash
+npm run typecheck
+```
+
+See [the functional test catalogue](tests/README.md) for the tested scenarios, real PDF/QR integration checks, simulated browser APIs, and remaining device/browser verification requirements.
+
+### Continuous integration
+
+The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch using Node.js 24 on Ubuntu. It installs dependencies with `npm ci`, then runs the tests, type checking, and production build. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
+
+After pushing the workflow, check the repository's Actions tab for its first result. Requiring CI before merging is a separate repository ruleset setting; the workflow does not enable it automatically.
+
 ## Project structure
 
 ```text

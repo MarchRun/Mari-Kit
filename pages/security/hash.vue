@@ -66,6 +66,7 @@
             type="submit"
             class="w-full sm:w-auto"
             :disabled="!hashText"
+            :loading="isGenerating"
           >
             <Hash aria-hidden="true" class="h-4 w-4" />
             Generate Hash
@@ -83,7 +84,7 @@
 
         <p
           v-if="statusMessage"
-          role="status"
+          :role="hasError ? 'alert' : 'status'"
           aria-live="polite"
           class="text-sm text-neutral-200"
         >
@@ -106,7 +107,8 @@
           aria-live="polite"
           class="flex min-h-52 items-center justify-center rounded-2xl border border-neutral-300 bg-neutral-100 p-6 text-neutral-600"
         >
-          <div class="min-w-0 text-center">
+          <p v-if="hashResult" class="min-w-0 select-all break-all text-sm text-neutral-950">{{ hashResult }}</p>
+          <div v-else class="min-w-0 text-center">
             <Hash
               aria-hidden="true"
               class="mx-auto mb-3 h-12 w-12 stroke-1"
@@ -120,7 +122,8 @@
 
         <AppButton
           class="mt-4 w-full"
-          disabled
+          :disabled="!hashResult"
+          @click="copyHash"
         >
           <Copy aria-hidden="true" class="h-4 w-4" />
           Copy Hash
@@ -131,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { Copy, Hash } from 'lucide-vue-next'
 
 type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
@@ -139,14 +142,55 @@ type HashAlgorithm = 'SHA-256' | 'SHA-384' | 'SHA-512'
 const hashText = ref('')
 const algorithm = ref<HashAlgorithm>('SHA-256')
 const statusMessage = ref('')
+const hashResult = ref('')
+const hasError = ref(false)
+const isGenerating = ref(false)
+let generation = 0
 
 watch([hashText, algorithm], () => {
   statusMessage.value = ''
-})
+  hashResult.value = ''
+  hasError.value = false
+  generation += 1
+  isGenerating.value = false
+}, { flush: 'sync' })
 
-const handleGenerate = () => {
-  statusMessage.value = 'Hash generation is not available yet.'
+const handleGenerate = async () => {
+  if (!hashText.value || isGenerating.value) return
+  const currentGeneration = ++generation
+  hashResult.value = ''
+  hasError.value = false
+  isGenerating.value = true
+  statusMessage.value = 'Generating hash...'
+
+  try {
+    const bytes = new TextEncoder().encode(hashText.value)
+    const digest = await crypto.subtle.digest(algorithm.value, bytes)
+    if (currentGeneration !== generation) return
+    hashResult.value = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('')
+    statusMessage.value = 'Hash generated.'
+  } catch {
+    if (currentGeneration !== generation) return
+    hasError.value = true
+    statusMessage.value = 'Unable to generate a hash. Use a browser with Web Crypto support over HTTPS or localhost.'
+  } finally {
+    if (currentGeneration === generation) isGenerating.value = false
+  }
 }
+
+const copyHash = async () => {
+  if (!hashResult.value) return
+  try {
+    await navigator.clipboard.writeText(hashResult.value)
+    hasError.value = false
+    statusMessage.value = 'Hash copied to the clipboard.'
+  } catch {
+    hasError.value = true
+    statusMessage.value = 'Unable to copy. Select the hash and copy it manually.'
+  }
+}
+
+onBeforeUnmount(() => { generation += 1 })
 
 const clearForm = () => {
   hashText.value = ''

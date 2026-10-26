@@ -1,39 +1,54 @@
 <template>
-  <NuxtLink 
-    :to="link" 
-    class="flex flex-col p-8 bg-black border border-white rounded-3xl transition hover:border-primary-600 hover:shadow-lg hover:shadow-primary-900/20"
+  <NuxtLink
+    :to="link"
+    class="group flex items-center rounded-3xl border border-white bg-black p-5 text-white transition hover:-translate-y-1 hover:shadow-xl motion-reduce:transform-none md:min-h-80 md:flex-col md:items-stretch md:p-8"
   >
-    <div class="mb-6">
+    <div class="mr-4 shrink-0 md:mb-6 md:mr-0">
       <component
         :is="icon"
         aria-hidden="true"
-        class="h-10 w-10 text-white"
+        class="h-9 w-9 md:h-10 md:w-10"
       />
     </div>
 
-    <h3 class="text-2xl font-bold mb-3 text-white">
-      {{ title }}
-    </h3>
+    <div class="min-w-0 flex-1 md:flex md:flex-col">
+      <p class="mb-1 text-xs uppercase tracking-widest text-neutral-300">
+        {{ category }}
+      </p>
 
-    <p class="text-neutral-400 text-sm leading-relaxed line-clamp-2 mb-8 flex-grow">
-      {{ description }}
-    </p>
+      <h3 class="text-xl font-bold md:mb-3 md:text-2xl">
+        {{ title }}
+      </h3>
 
-    <div class="mt-auto flex justify-start">
-      <span class="text-sm font-bold tracking-widest text-white uppercase">
-        Navigate →
+      <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-300 md:mb-8 md:mt-0 md:flex-grow">
+        {{ description }}
+      </p>
+
+      <span class="mt-auto hidden items-center gap-2 pt-5 text-sm font-bold uppercase tracking-widest md:flex">
+        Open tool
+        <ArrowRight
+          aria-hidden="true"
+          class="h-4 w-4 transition-transform group-hover:translate-x-1 motion-reduce:transform-none"
+        />
       </span>
     </div>
+
+    <ArrowRight
+      aria-hidden="true"
+      class="ml-3 h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1 motion-reduce:transform-none md:hidden"
+    />
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
-import type { Component } from 'vue';
+import type { Component } from 'vue'
+import { ArrowRight } from 'lucide-vue-next'
 
 defineProps<{
-  link: string;
-  icon: Component;
-  title: string;
-  description: string;
-}>();
+  link: string
+  icon: Component
+  title: string
+  description: string
+  category: string
+}>()
 </script>

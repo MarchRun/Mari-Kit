@@ -114,6 +114,7 @@
           type="submit"
           class="w-full sm:w-auto"
           :disabled="!canSplit"
+          :loading="isSplitting"
         >
           <Scissors aria-hidden="true" class="h-4 w-4" />
           Split PDF
@@ -130,18 +131,20 @@
 
         <AppButton
           class="w-full sm:ml-auto sm:w-auto"
-          disabled
+          :disabled="results.length === 0"
+          @click="downloadResults"
         >
           <Download aria-hidden="true" class="h-4 w-4" />
-          Download
+          {{ results.length > 1 ? `Download ${results.length} files` : 'Download' }}
         </AppButton>
       </div>
 
       <p
         v-if="statusMessage"
-        role="status"
-        aria-live="polite"
-        class="text-sm text-neutral-200"
+        :role="statusType === 'error' ? 'alert' : 'status'"
+        :aria-live="statusType === 'error' ? 'assertive' : 'polite'"
+        class="text-sm"
+        :class="statusType === 'error' ? 'text-red-300' : 'text-neutral-200'"
       >
         {{ statusMessage }}
       </p>
@@ -150,7 +153,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { PDFDocument } from 'pdf-lib'
+import { getPdfFileName } from '~/utils/downloadFileName'
+import { isEncryptedPdfError } from '~/utils/pdf/isEncryptedPdfError'
 import {
   Download,
   FileText,
@@ -159,11 +165,20 @@ import {
 } from 'lucide-vue-next'
 
 type SplitMethod = 'range' | 'everyPage'
+type StatusType = 'success' | 'error' | ''
+type SplitResult = {
+  name: string
+  url: string
+}
 
 const selectedFile = ref<File>()
 const splitMethod = ref<SplitMethod>('range')
 const pageRange = ref('')
 const statusMessage = ref('')
+const statusType = ref<StatusType>('')
+const isSplitting = ref(false)
+const results = ref<SplitResult[]>([])
+let splitVersion = 0
 
 const canSplit = computed(() => {
   if (!selectedFile.value) {
@@ -185,27 +200,149 @@ const handleFiles = (files: File[]) => {
   }
 
   selectedFile.value = file
-  statusMessage.value = ''
+  resetResult()
 }
 
 const handleRejectedFiles = () => {
+  resetResult()
   statusMessage.value = 'Only PDF files can be added.'
+  statusType.value = 'error'
 }
 
 const clearFile = () => {
   selectedFile.value = undefined
-  statusMessage.value = ''
+  resetResult()
 }
 
 const clearForm = () => {
   selectedFile.value = undefined
   splitMethod.value = 'range'
   pageRange.value = ''
-  statusMessage.value = ''
+  resetResult()
 }
 
-const handleSplit = () => {
-  statusMessage.value = 'PDF splitting is not available yet.'
+const clearResults = () => {
+  for (const result of results.value) {
+    URL.revokeObjectURL(result.url)
+  }
+
+  results.value = []
+}
+
+const resetResult = () => {
+  splitVersion += 1
+  clearResults()
+  statusMessage.value = ''
+  statusType.value = ''
+}
+
+const parsePageRange = (value: string, pageCount: number) => {
+  const pages: number[] = []
+
+  for (const part of value.split(',')) {
+    const match = part.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/)
+
+    if (!match) {
+      throw new RangeError('Enter pages as numbers or ranges, such as 1-3, 5, 8-10.')
+    }
+
+    const start = Number(match[1])
+    const end = Number(match[2] ?? match[1])
+
+    if (start < 1 || end < start || end > pageCount) {
+      throw new RangeError(`Use pages from 1 to ${pageCount} in ascending ranges.`)
+    }
+
+    for (let page = start; page <= end; page += 1) {
+      if (!pages.includes(page - 1)) {
+        pages.push(page - 1)
+      }
+    }
+  }
+
+  return pages
+}
+
+const createResult = async (
+  sourcePdf: PDFDocument,
+  pageIndices: number[],
+  name: string,
+  version: number
+) => {
+  const outputPdf = await PDFDocument.create()
+  const pages = await outputPdf.copyPages(sourcePdf, pageIndices)
+
+  for (const page of pages) {
+    outputPdf.addPage(page)
+  }
+
+  const bytes = await outputPdf.save({ useObjectStreams: true })
+  if (version !== splitVersion) return
+  const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
+
+  results.value.push({
+    name,
+    url: URL.createObjectURL(blob)
+  })
+}
+
+const handleSplit = async () => {
+  if (!selectedFile.value || !canSplit.value || isSplitting.value) {
+    return
+  }
+
+  clearResults()
+  const version = ++splitVersion
+  const file = selectedFile.value
+  const method = splitMethod.value
+  const range = pageRange.value
+  isSplitting.value = true
+  statusMessage.value = 'Splitting PDF...'
+  statusType.value = ''
+
+  try {
+    const bytes = await file.arrayBuffer()
+    if (version !== splitVersion) return
+    const sourcePdf = await PDFDocument.load(bytes)
+    if (version !== splitVersion) return
+    const pageCount = sourcePdf.getPageCount()
+
+    if (method === 'range') {
+      const pageIndices = parsePageRange(range, pageCount)
+      await createResult(sourcePdf, pageIndices, getPdfFileName(file.name, 'split'), version)
+    } else {
+      for (let index = 0; index < pageCount; index += 1) {
+        if (version !== splitVersion) return
+        await createResult(sourcePdf, [index], getPdfFileName(file.name, `page-${index + 1}`), version)
+      }
+    }
+
+    if (version !== splitVersion) return
+    statusMessage.value = results.value.length === 1
+      ? 'PDF split successfully.'
+      : `PDF split successfully into ${results.value.length} files.`
+    statusType.value = 'success'
+  } catch (error) {
+    if (version !== splitVersion) return
+    clearResults()
+    statusMessage.value = error instanceof RangeError
+      ? error.message
+      : isEncryptedPdfError(error)
+        ? 'This PDF is encrypted. Please choose an unencrypted copy.'
+        : 'Unable to split this PDF. The file may be damaged or unsupported.'
+    statusType.value = 'error'
+  } finally {
+    isSplitting.value = false
+  }
+}
+
+const downloadResults = () => {
+  for (const result of results.value) {
+    const link = document.createElement('a')
+    link.href = result.url
+    link.download = result.name
+    link.click()
+  }
 }
 
 const formatFileSize = (bytes: number) => {
@@ -215,4 +352,11 @@ const formatFileSize = (bytes: number) => {
 
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
+
+watch([splitMethod, pageRange], resetResult, { flush: 'sync' })
+
+onBeforeUnmount(() => {
+  splitVersion += 1
+  clearResults()
+})
 </script>
