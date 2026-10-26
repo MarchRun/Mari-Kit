@@ -98,7 +98,7 @@
                 >
                   License
                 </a>
-                <span>Privacy Policy</span>
+                <NuxtLink to="/privacy" class="hover:text-white">Privacy Policy</NuxtLink>
               </div>
             </footer>
 

@@ -5,6 +5,7 @@ import Tools from '../ui/components/sections/ToolsSection.vue'
 import Contact from '../ui/components/sections/ContactSection.vue'
 import NavBar from '../ui/components/NavBar.vue'
 import ToolCard from '../ui/components/ToolCard.vue'
+import Privacy from '../pages/privacy.vue'
 import { button } from './helpers'
 
 const link = { props: ['to'], template: '<a :href="to"><slot /></a>' }
@@ -78,6 +79,25 @@ describe('Contact unavailable state', () => {
     expect(wrapper.get('[role="status"]').text()).toContain('Message delivery is not available yet')
     expect(fetch).not.toHaveBeenCalled()
     expect(wrapper.get('a[href="https://github.com/MarchRun/MariKit"]').attributes('rel')).toBe('noopener noreferrer')
+    expect(wrapper.get('a[href="/privacy"]').text()).toBe('Privacy Policy')
+  })
+})
+
+describe('Privacy policy draft', () => {
+  it('distinguishes local processing from hosting and keeps deployment unknowns visible', () => {
+    const wrapper = mount(Privacy, options)
+    expect(wrapper.get('h1').text()).toBe('Privacy Policy')
+    expect(wrapper.text()).toContain('MariKit is operated by Marchel Karuna Kwee')
+    expect(wrapper.get('a[href="mailto:marchelk372@gmail.com"]').text()).toBe('marchelk372@gmail.com')
+    expect(wrapper.text()).toContain('Gmail process the message')
+    expect(wrapper.get('aside').text()).toContain('No effective date has been assigned')
+    expect(wrapper.text()).toContain('do not upload your selected files')
+    expect(wrapper.text()).toContain('does not state a retention period')
+    expect(wrapper.text()).toContain('analytics and error-tracking settings')
+    expect(wrapper.get('a[href="/#contact"]').text()).toBe('Back to MariKit')
+    for (const anchor of wrapper.findAll('a[target="_blank"]')) {
+      expect(anchor.attributes('rel')).toBe('noopener noreferrer')
+    }
   })
 })
 

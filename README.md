@@ -101,6 +101,8 @@ utils/      Shared helper functions
 
 ## Privacy
 
+Known dependency advisories and their assessed exposure are documented in [the dependency review](DEPENDENCY-REVIEW.md). Unresolved findings are not treated as patched by a successful test run or build.
+
 MariKit aims to process supported data in the browser and avoid permanent storage of personal files. Features that require a server or an external service should disclose that behavior before sending any data.
 
 Do not use the application for sensitive material until the relevant tool has been reviewed and tested for your use case.
