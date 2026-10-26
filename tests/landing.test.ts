@@ -93,7 +93,10 @@ describe('Privacy policy draft', () => {
     expect(wrapper.get('aside').text()).toContain('No effective date has been assigned')
     expect(wrapper.text()).toContain('do not upload your selected files')
     expect(wrapper.text()).toContain('does not state a retention period')
-    expect(wrapper.text()).toContain('analytics and error-tracking settings')
+    expect(wrapper.text()).toContain('Vercel Web Analytics is disabled')
+    expect(wrapper.text()).toContain('within 90 days after the request is resolved')
+    expect(wrapper.text()).toContain('legal obligation or dispute')
+    expect(wrapper.text()).toContain('does not control copies held by your email provider')
     expect(wrapper.get('a[href="/#contact"]').text()).toBe('Back to MariKit')
     for (const anchor of wrapper.findAll('a[target="_blank"]')) {
       expect(anchor.attributes('rel')).toBe('noopener noreferrer')
