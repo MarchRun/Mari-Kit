@@ -62,12 +62,13 @@
         </button>
 
         <p
-          v-if="submissionStatus === 'unavailable'"
+          v-if="submissionStatus === 'handoff'"
           role="status"
           aria-live="polite"
           class="text-sm leading-relaxed text-neutral-400"
         >
-          Message delivery is not available yet. Please use GitHub to report bugs or suggest improvements.
+          Your email app should open with the message ready to send. Nothing is sent until you press Send there.
+          If it did not open, email {{ contactEmail }} directly.
         </p>
       </form>
 
@@ -123,11 +124,21 @@
 <script setup lang="ts">
 import { ArrowUp, Github } from 'lucide-vue-next'
 
-type SubmissionStatus = 'idle' | 'unavailable'
+type SubmissionStatus = 'idle' | 'handoff'
 
+const contactEmail = 'marchelk372@gmail.com'
 const submissionStatus = ref<SubmissionStatus>('idle')
 
-const handleSubmit = () => {
-  submissionStatus.value = 'unavailable'
+const handleSubmit = (event: SubmitEvent) => {
+  const form = event.currentTarget as HTMLFormElement
+  const data = new FormData(form)
+  const name = String(data.get('name') ?? '').trim()
+  const email = String(data.get('email') ?? '').trim()
+  const message = String(data.get('message') ?? '')
+  const subject = encodeURIComponent(`MariKit contact from ${name}`)
+  const body = encodeURIComponent(`From: ${name} <${email}>\n\n${message}`)
+
+  submissionStatus.value = 'handoff'
+  window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`
 }
 </script>

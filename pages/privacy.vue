@@ -38,7 +38,7 @@
           <h2 id="contact-links">Contact and external links</h2>
           <p>MariKit is operated by Marchel Karuna Kwee. For privacy questions or requests, email <a href="mailto:marchelk372@gmail.com">marchelk372@gmail.com</a>.</p>
           <p class="mt-3">If you email us, your email provider and Gmail process the message. The operator receives your email address, message, and any attachments to respond to your request. Do not include passwords or confidential tool inputs. The operator deletes privacy correspondence from the mailbox within 90 days after the request is resolved, unless longer retention is necessary for a legal obligation or dispute. This mailbox policy does not control copies held by your email provider or Gmail’s backup and deletion processes.</p>
-          <p class="mt-3">Contact form delivery is not available. Submitting the current form displays an unavailable message and does not send the entered details.</p>
+          <p class="mt-3">Submitting the contact form opens your email application with your name, email address, and message prefilled. MariKit does not send the form contents to a server; the message is only sent when you press Send in your email application. If no email application opens, you can email the address above directly.</p>
           <p class="mt-3">Following a link to GitHub, Vercel, or another website sends you to a service governed by its own privacy practices. Do not post private files, passwords, or personal information in public GitHub issues.</p>
         </section>
         <section aria-labelledby="choices-updates">
