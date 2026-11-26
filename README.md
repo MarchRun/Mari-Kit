@@ -1,25 +1,43 @@
+<a id="top"></a>
+
+<div align="center">
+
 # MariKit
 
-Browser-based tools for PDFs, QR codes, file metadata, passwords, and hashes. Files and text you enter are processed in your browser — there is no application server for tool data.
+**Eight browser tools. Files stay in your browser.**
 
-## What you can do
+[![Nuxt][nuxt-badge]][nuxt] [![Vue][vue-badge]][vue] [![TypeScript][ts-badge]][ts] [![Tailwind][tw-badge]][tw]
 
-| Category | Tools |
+[Tools](#tools) · [Start](#start) · [Configure](#configure) · [Privacy](#privacy) · [Deploy](#deploy)
+
+</div>
+
+<details>
+<summary>Contents</summary>
+
+- [Tools](#tools)
+- [Start](#start)
+- [Configure](#configure)
+- [Privacy](#privacy)
+- [Deploy](#deploy)
+- [License](#license)
+
+</details>
+
+<a id="tools"></a>
+
+## Tools
+
+| Area | What you can do |
 | --- | --- |
-| Documents | **PDF Merger**, **PDF Splitter**, **PDF Organizer** — combine files, split by page range, and reorder, rotate, or remove pages |
-| Files | **File Metadata Remover** — strip metadata from JPEG, PNG, WebP, SVG, and PDF |
-| QR codes | **QR Generator**, **QR Scanner** — create a PNG, or scan from an image or camera |
-| Security | **Password Generator**, **Hash Generator** — generate passwords and SHA-256/384/512 digests |
+| Documents | Merge PDFs, split by page range, reorder / rotate / remove pages |
+| Files | Remove metadata from JPEG, PNG, WebP, SVG, and PDF |
+| QR | Generate a PNG, scan an image or a camera frame |
+| Security | Generate passwords, hash text with SHA-256 / 384 / 512 |
 
-## Privacy
+<a id="start"></a>
 
-- Tool input, filenames, camera frames, and results are not uploaded.
-- The application does not set analytics, error tracking, or cookies.
-- The service worker caches pages and static assets only; tool data is never cached.
-- Hosting, contact, and retention details are disclosed on the privacy page.
-- Known dependency advisories and their assessed exposure are recorded in [DEPENDENCY-REVIEW.md](DEPENDENCY-REVIEW.md).
-
-## Run it locally
+## Start
 
 Requires Node.js.
 
@@ -32,56 +50,61 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-### Optional configuration
+| Command | Use |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Production server build |
+| `npm run preview` | Preview that build |
+| `npm run generate` | Static output |
+| `npm run typecheck` | Type check |
 
-Copy `.env.example` to `.env` and fill in the values you want:
+<a id="configure"></a>
 
-| Variable | Used for |
+## Configure
+
+Copy `.env.example` to `.env` and fill in what you need. All keys are optional — tools work without them.
+
+| Variable | Sets |
 | --- | --- |
 | `NUXT_PUBLIC_OPERATOR_NAME` | Operator name on the privacy page |
 | `NUXT_PUBLIC_CONTACT_EMAIL` | Contact address and email handoff |
 | `NUXT_PUBLIC_GITHUB_URL` | Repository and license links |
 
-All three are optional. Without them the tools still work; contact and repository links are hidden and the privacy page says contact is not configured.
+With no address configured, the contact form says so and opens no mail client.
 
-## Commands
+<a id="privacy"></a>
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the development server |
-| `npm run build` | Build the production server output |
-| `npm run preview` | Preview the production build locally |
-| `npm run generate` | Generate a static site |
-| `npm run typecheck` | Check TypeScript types |
+## Privacy
 
-## Install and offline use
+- Tool input, filenames, camera frames, and results are not uploaded.
+- No analytics, error tracking, or application cookies.
+- The service worker caches pages and assets only — never tool data.
+- Hosting and retention details are on the in-app privacy page.
+- Dependency advisories and their reachability are in [DEPENDENCY-REVIEW.md](DEPENDENCY-REVIEW.md).
 
-MariKit can be installed from a browser that supports installation using the **Install app** control on the homepage. Other browsers show an unavailable message; there is no separate application download.
+Install from the **Install app** control on the homepage when the browser supports it. Visited pages reopen offline; unvisited pages show an offline notice. Clearing site data removes the cache.
 
-After a page has been opened online, the service worker keeps that page and its static assets so it can reopen without a network connection. Pages that have never been opened show an offline notice. Two online visits may be needed before every lazily loaded script for a page is cached.
+<a id="deploy"></a>
 
-The cache holds pages, scripts, styles, fonts, icons, and the manifest only. Clearing site data removes the cache, and the tools keep working online.
+## Deploy
 
-## Project layout
+`npm run build` produces a Nitro server that runs anywhere Node.js is available. `npm run generate` produces static files for any static host. Set the three variables above in your host before building if you want contact and repository links to appear.
 
-```text
-logic/    Reusable processing logic
-pages/    Application routes
-public/   Manifest, icons, service worker, offline page
-ui/       Interface components
-utils/    Shared helpers
-```
+[CI](.github/workflows/ci.yml) installs locked dependencies, checks types, and builds on every push and pull request. It does not deploy.
 
-## Continuous integration
-
-The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch. It installs locked dependencies, checks types, and builds the production output. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
-
-Requiring CI before merging is a repository ruleset setting; the workflow does not enable it automatically.
-
-## Contributing
-
-Bug reports and suggestions are welcome through GitHub Issues. For larger code changes, open an issue first so the approach can be discussed.
+<a id="license"></a>
 
 ## License
 
-MariKit is available under the [MIT License](LICENSE).
+[MIT](LICENSE).
+
+<p align="right"><a href="#top">back to top ↑</a></p>
+
+[nuxt-badge]: https://img.shields.io/badge/Nuxt-4-020420?logo=nuxt&logoColor=white
+[nuxt]: https://nuxt.com/docs
+[vue-badge]: https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white
+[vue]: https://vuejs.org/guide/introduction.html
+[ts-badge]: https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white
+[ts]: https://www.typescriptlang.org/docs/
+[tw-badge]: https://img.shields.io/badge/Tailwind-38B2AC?logo=tailwindcss&logoColor=white
+[tw]: https://tailwindcss.com/docs
