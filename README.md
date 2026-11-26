@@ -1,111 +1,86 @@
 # MariKit
 
-MariKit is a collection of browser-based tools for working with documents, QR codes, and security-related utilities.
+Browser-based tools for PDFs, QR codes, file metadata, passwords, and hashes. Files and text you enter are processed in your browser — there is no application server for tool data.
 
-The project is designed to keep supported processing on the user's device. Files and input should not leave the browser unless a feature clearly states otherwise.
+## What you can do
 
-MariKit is still under development. Some tools may be incomplete or change as the project evolves.
+| Category | Tools |
+| --- | --- |
+| Documents | **PDF Merger**, **PDF Splitter**, **PDF Organizer** — combine files, split by page range, and reorder, rotate, or remove pages |
+| Files | **File Metadata Remover** — strip metadata from JPEG, PNG, WebP, SVG, and PDF |
+| QR codes | **QR Generator**, **QR Scanner** — create a PNG, or scan from an image or camera |
+| Security | **Password Generator**, **Hash Generator** — generate passwords and SHA-256/384/512 digests |
 
-## Available tools
+## Privacy
 
-Current areas of development include:
+- Tool input, filenames, camera frames, and results are not uploaded.
+- The application does not set analytics, error tracking, or cookies.
+- The service worker caches pages and static assets only; tool data is never cached.
+- Hosting, contact, and retention details are disclosed on the privacy page.
+- Known dependency advisories and their assessed exposure are recorded in [DEPENDENCY-REVIEW.md](DEPENDENCY-REVIEW.md).
 
-- PDF utilities
-- File metadata removal for JPEG, PNG, WebP, SVG, and PDF
-- QR code generation and scanning
-- Password generation and hashing utilities
+## Run it locally
 
-## Built with
-
-- Nuxt
-- Vue
-- TypeScript
-- Tailwind CSS
-
-## Run locally
-
-Clone the repository and install the dependencies:
+Requires Node.js.
 
 ```bash
 git clone https://github.com/<owner>/<repository>.git
 cd MariKit
 npm install
-```
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser.
+Open `http://localhost:3000`.
 
-## Build
+### Optional configuration
 
-Create a production build:
+Copy `.env.example` to `.env` and fill in the values you want:
 
-```bash
-npm run build
-```
+| Variable | Used for |
+| --- | --- |
+| `NUXT_PUBLIC_OPERATOR_NAME` | Operator name on the privacy page |
+| `NUXT_PUBLIC_CONTACT_EMAIL` | Contact address and email handoff |
+| `NUXT_PUBLIC_GITHUB_URL` | Repository and license links |
 
-Preview the production build locally:
+All three are optional. Without them the tools still work; contact and repository links are hidden and the privacy page says contact is not configured.
 
-```bash
-npm run preview
-```
+## Commands
 
-You can also generate a static build:
-
-```bash
-npm run generate
-```
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the production server output |
+| `npm run preview` | Preview the production build locally |
+| `npm run generate` | Generate a static site |
+| `npm run typecheck` | Check TypeScript types |
 
 ## Install and offline use
 
-MariKit can be installed from a supporting browser with the **Install app** control on the homepage. Browsers that cannot install it show an unavailable message; there is no separate application download.
+MariKit can be installed from a browser that supports installation using the **Install app** control on the homepage. Other browsers show an unavailable message; there is no separate application download.
 
-After a page has been opened online, the service worker keeps that page and the static assets it needs so the page can reopen when the network is unavailable. Pages that have never been opened show an offline notice instead. Two online visits may be needed before every lazily loaded script for a page is cached.
+After a page has been opened online, the service worker keeps that page and its static assets so it can reopen without a network connection. Pages that have never been opened show an offline notice. Two online visits may be needed before every lazily loaded script for a page is cached.
 
-The cache holds pages, scripts, styles, fonts, icons, and the manifest only. Tool input, filenames, and results are never cached. Clearing site data removes the cache, and the tools keep working online.
+The cache holds pages, scripts, styles, fonts, icons, and the manifest only. Clearing site data removes the cache, and the tools keep working online.
 
-## Checks
-
-Run type checking:
-
-```bash
-npm run typecheck
-```
-
-### Continuous integration
-
-The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch using Node.js 24 on Ubuntu 24.04. It installs dependencies with `npm ci`, then runs type checking and the production build. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
-
-Requiring CI before merging is a separate repository ruleset setting; the workflow does not enable it automatically.
-
-## Project structure
+## Project layout
 
 ```text
-logic/      Reusable application logic
-pages/      Application routes
-public/     Public assets
-server/     Server routes and middleware
-ui/         Reusable interface components
-utils/      Shared helper functions
+logic/    Reusable processing logic
+pages/    Application routes
+public/   Manifest, icons, service worker, offline page
+ui/       Interface components
+utils/    Shared helpers
 ```
 
-## Privacy
+## Continuous integration
 
-Known dependency advisories and their assessed exposure are documented in [the dependency review](DEPENDENCY-REVIEW.md). Unresolved findings are not treated as patched by a successful test run or build.
+The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch. It installs locked dependencies, checks types, and builds the production output. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
 
-MariKit aims to process supported data in the browser and avoid permanent storage of personal files. Features that require a server or an external service should disclose that behavior before sending any data.
-
-Do not use the application for sensitive material until the relevant tool has been reviewed and tested for your use case.
+Requiring CI before merging is a repository ruleset setting; the workflow does not enable it automatically.
 
 ## Contributing
 
-Bug reports and feature suggestions are welcome through GitHub Issues.
-
-If you want to contribute code, open an issue first so the proposed change can be discussed before implementation.
+Bug reports and suggestions are welcome through GitHub Issues. For larger code changes, open an issue first so the approach can be discussed.
 
 ## License
 

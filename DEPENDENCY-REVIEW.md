@@ -1,10 +1,10 @@
 # Dependency advisory review
 
-Reviewed on November 26, 2026, after applying in-range patches and re-running a clean install. This is a scoped reachability review, not a clean security audit or a finding that the remaining advisories can be ignored.
+Reviewed on November 26, 2026, after applying in-range patches, removing test-only dependencies from the public repository, and re-running a clean install. This is a scoped reachability review, not a clean security audit or a finding that the remaining advisories can be ignored.
 
 ## Summary
 
-`npm audit --json` now reports **12 moderate advisories** and no high or critical findings, down from 17 advisories including one high before the update.
+`npm audit --json` now reports **8 moderate advisories** and no high or critical findings, down from 17 advisories including one high before the update.
 
 Patches applied without `--force`, downgrades, peer-relaxing flags, or major overrides:
 
@@ -22,9 +22,9 @@ Remote tarball fetching is disabled by default in this environment. The update w
 ## Verified after the update
 
 - `npm ci --allow-remote=all` succeeded.
-- `npm test -- --run`: 199 tests passed.
 - `npm run typecheck`: clean.
 - `npm run build`: production build succeeded.
+- The private test archive still runs 200 passing tests with its own dependencies.
 
 ## Remaining advisories
 
@@ -34,11 +34,11 @@ Remote tarball fetching is disabled by default in this environment. The update w
 - npm's only suggested fix is downgrading Nuxt to `4.6.3`, which returns to other advisories. That downgrade is not accepted.
 - These paths are build/server-tooling dependencies. The inspected standalone production output does not contain the affected build chain; this does not cover development, preview, or custom server presets.
 
-### Test tooling chain (moderate)
+### Test tooling removed from the public repository
 
-- `@vue/test-utils@2.5.1` is affected through `js-beautify`, `glob`, and `minimatch`.
-- npm's only suggested fix is a downgrade to `2.4.11`, marked semver-major. That downgrade is not accepted.
-- These are development/test dependencies and are not part of the deployed application bundle.
+- The public `package.json` no longer carries `vitest`, `@vue/test-utils`, `jsdom`, `@testing-library/vue`, `@vitest/coverage-v8`, or `@vitejs/plugin-vue`. This removed five advisories and leaves only the Nuxt build chain above.
+- Those dependencies remain in the private test archive, which installs them separately. They are not part of the deployed application bundle.
+- The remaining `minimatch` finding comes through the Nuxt chain, not through the removed test tooling.
 
 ## Reachability notes
 
@@ -49,7 +49,7 @@ Remote tarball fetching is disabled by default in this environment. The update w
 ## Follow-up
 
 - [ ] Recheck Nuxt 4.7.x or later for a release without prerelease runtime dependencies and with fixes for the remaining archiver/readdir-glob chain.
-- [ ] Recheck `@vue/test-utils` for a forward compatible fix; do not accept the suggested major downgrade without review.
+- [ ] Recheck the private archive's test tooling for a forward compatible fix; do not accept the suggested major downgrade without review.
 - [ ] Rerun `npm audit --json` and this review after any lockfile, hosting, server preset, or input-processing change.
 - [ ] Verify the exact deployed artifact and production entry point before release.
 
