@@ -11,12 +11,18 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      title: 'MariKit — browser tools for PDFs, QR codes, files, passwords, and hashes',
+      htmlAttrs: { lang: 'en' },
       link: [
         { rel: 'manifest', href: '/manifest.webmanifest' },
         { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/icons/icon-192.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/icons/apple-touch-icon.png' }
       ],
       meta: [
+        {
+          name: 'description',
+          content: 'Browser-based tools for PDFs, QR codes, file metadata removal, passwords, and hashes. Processing stays in your browser.'
+        },
         { name: 'theme-color', content: '#171717' }
       ]
     }
