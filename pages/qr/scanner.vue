@@ -159,6 +159,7 @@ import {
   computed,
   nextTick,
   onBeforeUnmount,
+  onMounted,
   ref,
   shallowRef
 } from 'vue'
@@ -425,7 +426,19 @@ const clearResult = () => {
   statusType.value = ''
 }
 
+const handleVisibilityChange = () => {
+  if (!document.hidden || !isCameraActive.value) return
+  stopCamera()
+  statusMessage.value = 'Camera stopped because this page was moved to the background. Start it again to continue scanning.'
+  statusType.value = ''
+}
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
   stopCamera()
 })
 </script>
