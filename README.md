@@ -27,7 +27,7 @@ Current areas of development include:
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/MarchRun/MariKit.git
+git clone https://github.com/<owner>/<repository>.git
 cd MariKit
 npm install
 ```

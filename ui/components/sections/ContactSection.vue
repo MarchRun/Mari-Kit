@@ -70,13 +70,22 @@
           Your email app should open with the message ready to send. Nothing is sent until you press Send there.
           If it did not open, email {{ contactEmail }} directly.
         </p>
+        <p
+          v-if="submissionStatus === 'unconfigured'"
+          role="status"
+          aria-live="polite"
+          class="text-sm leading-relaxed text-neutral-400"
+        >
+          Contact is not configured for this deployment. No email address is available to receive the message.
+        </p>
       </form>
 
       <div class="flex flex-col">
         <h2 class="text-4xl font-bold mb-8">Connect</h2>
 
         <a
-          href="https://github.com/MarchRun/MariKit"
+          v-if="githubUrl"
+          :href="githubUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="mb-8 flex items-center gap-4 py-3 text-lg transition hover:text-primary-400"
@@ -92,7 +101,8 @@
               <p>© 2026 MariKit. Open Source Project.</p>
               <div class="flex gap-4 mt-2">
                 <a
-                  href="https://github.com/MarchRun/MariKit/blob/main/LICENSE"
+                  v-if="licenseUrl"
+                  :href="licenseUrl"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="hover:text-white"
@@ -124,12 +134,19 @@
 <script setup lang="ts">
 import { ArrowUp, Github } from 'lucide-vue-next'
 
-type SubmissionStatus = 'idle' | 'handoff'
+type SubmissionStatus = 'idle' | 'handoff' | 'unconfigured'
 
-const contactEmail = 'marchelk372@gmail.com'
+const config = useRuntimeConfig()
+const contactEmail = String(config.public.contactEmail || '')
+const githubUrl = String(config.public.githubUrl || '')
+const licenseUrl = githubUrl ? `${githubUrl}/blob/main/LICENSE` : ''
 const submissionStatus = ref<SubmissionStatus>('idle')
 
 const handleSubmit = (event: SubmitEvent) => {
+  if (!contactEmail) {
+    submissionStatus.value = 'unconfigured'
+    return
+  }
   const form = event.currentTarget as HTMLFormElement
   const data = new FormData(form)
   const name = String(data.get('name') ?? '').trim()

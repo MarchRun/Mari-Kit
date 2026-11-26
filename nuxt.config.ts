@@ -28,6 +28,14 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    public: {
+      operatorName: process.env.NUXT_PUBLIC_OPERATOR_NAME || '',
+      contactEmail: process.env.NUXT_PUBLIC_CONTACT_EMAIL || '',
+      githubUrl: process.env.NUXT_PUBLIC_GITHUB_URL || ''
+    }
+  },
+
   routeRules: {
     '/sw.js': { headers: { 'cache-control': 'no-cache' } },
     '/manifest.webmanifest': { headers: { 'cache-control': 'no-cache' } }

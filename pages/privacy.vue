@@ -6,12 +6,12 @@
         Back to MariKit
       </NuxtLink>
       <header class="mb-10">
-        <p class="mb-3 text-sm uppercase tracking-widest text-neutral-600">Privacy · Draft</p>
+        <p class="mb-3 text-sm uppercase tracking-widest text-neutral-600">Privacy</p>
         <h1 class="mb-4 text-4xl font-bold md:text-5xl">Privacy Policy</h1>
         <p class="leading-relaxed text-neutral-600">MariKit processes supported files and text in your browser. Visiting the website still involves network requests to our hosting provider.</p>
       </header>
-      <aside aria-label="Draft policy notice" class="mb-10 rounded-xl border border-neutral-300 bg-white p-5 leading-relaxed">
-        This draft reflects the current application and the operator-confirmed Vercel Hobby deployment with Web Analytics disabled. Vercel's published documentation supplies the plan-level log retention and function-region defaults stated below. The deployed project's region, log access list, and provider-side infrastructure handling have not been independently confirmed. No effective date has been assigned.
+      <aside aria-label="Policy notice" class="mb-10 rounded-xl border border-neutral-300 bg-white p-5 leading-relaxed">
+        Effective 26 November 2026. This policy reflects the current application, the operator-confirmed Vercel Hobby deployment with Web Analytics disabled, and the function region verified in the project settings. Provider-side infrastructure handling has not been independently verified.
       </aside>
       <div class="space-y-8 rounded-2xl bg-neutral-900 p-6 leading-relaxed text-neutral-300 md:p-10 [&_h2]:mb-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-white [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-white">
         <section aria-labelledby="local-processing">
@@ -27,25 +27,32 @@
         <section aria-labelledby="hosting">
           <h2 id="hosting">Hosting on Vercel</h2>
           <p>MariKit is hosted on Vercel’s Hobby plan. Loading pages and application assets sends ordinary web requests to Vercel. Hosting and security infrastructure may process metadata such as IP addresses, requested URLs, timestamps, browser information, and request identifiers. This is separate from the tool contents processed locally.</p>
-          <p class="mt-3">Vercel's Hobby plan retains runtime logs for one hour and stores build logs for each deployment. Runtime log details can include the requested path and query parameters, status code, region, browser information, and request identifiers. People with access to the Vercel project can view and share these logs through the dashboard or CLI. Hobby functions run in one region; Vercel's default for new projects is Washington, D.C., USA (<code>iad1</code>), but this project's configured region has not been independently confirmed. Static files are served from Vercel's CDN. Do not put confidential tool input into page URLs or query parameters.</p>
+          <p class="mt-3">Vercel's Hobby plan retains runtime logs for one hour and stores build logs for each deployment. Runtime log details can include the requested path and query parameters, status code, region, browser information, and request identifiers. People with access to the Vercel project can view and share these logs through the dashboard or CLI. This project's functions are configured in Washington, D.C., USA (<code>iad1</code>), as verified in the Vercel project settings. Static files are served from Vercel's CDN. Do not put confidential tool input into page URLs or query parameters.</p>
           <p class="mt-3">See <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel’s Privacy Policy</a> and <a href="https://vercel.com/docs/logs/runtime" target="_blank" rel="noopener noreferrer">runtime logging documentation</a> for provider information.</p>
         </section>
         <section aria-labelledby="storage-tracking">
           <h2 id="storage-tracking">Cookies, storage, and tracking</h2>
-          <p>The current application code does not set cookies, save tool data to local or session storage, or integrate analytics or error tracking. Vercel Web Analytics is disabled, as confirmed by the operator, and the project’s Integrations page shows no installed integrations. Fonts are served with the application rather than requested from Google Fonts. These facts cover the application code only; provider-side infrastructure handling has not been independently verified.</p>
+          <p>The application does not set cookies, save tool data to local or session storage, or integrate analytics or error tracking. Vercel Web Analytics is disabled, as confirmed by the operator, and the project’s Integrations page shows no installed integrations. A clean browser profile showed no cookies for this domain and no <code>Set-Cookie</code> response header. Cookies seen in a regular browser belong to other services or sessions, not to MariKit. Fonts are served with the application rather than requested from Google Fonts. These facts cover the application code only; provider-side infrastructure handling has not been independently verified.</p>
         </section>
         <section aria-labelledby="contact-links">
           <h2 id="contact-links">Contact and external links</h2>
-          <p>MariKit is operated by Marchel Karuna Kwee. For privacy questions or requests, email <a href="mailto:marchelk372@gmail.com">marchelk372@gmail.com</a>.</p>
+          <p v-if="contactEmail">MariKit is operated by {{ operatorName }}. For privacy questions or requests, email <a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>.</p>
+          <p v-else>Contact details for this deployment have not been configured.</p>
           <p class="mt-3">If you email us, your email provider and Gmail process the message. The operator receives your email address, message, and any attachments to respond to your request. Do not include passwords or confidential tool inputs. The operator deletes privacy correspondence from the mailbox within 90 days after the request is resolved, unless longer retention is necessary for a legal obligation or dispute. This mailbox policy does not control copies held by your email provider or Gmail’s backup and deletion processes.</p>
           <p class="mt-3">Submitting the contact form opens your email application with your name, email address, and message prefilled. MariKit does not send the form contents to a server; the message is only sent when you press Send in your email application. If no email application opens, you can email the address above directly.</p>
           <p class="mt-3">Following a link to GitHub, Vercel, or another website sends you to a service governed by its own privacy practices. Do not post private files, passwords, or personal information in public GitHub issues.</p>
         </section>
         <section aria-labelledby="choices-updates">
           <h2 id="choices-updates">Your choices and policy updates</h2>
-          <p>You can stop using a tool, leave the page, revoke camera permission, clear clipboard history, and delete downloaded files using your device controls. For requests about hosting metadata, applicable privacy rights, or this policy, use the email address above. This draft must be reviewed when hosting settings, external services, or data-handling features change.</p>
+          <p>You can stop using a tool, leave the page, revoke camera permission, clear clipboard history, and delete downloaded files using your device controls. For requests about hosting metadata, applicable privacy rights, or this policy, use the email address above. This policy is reviewed when hosting settings, external services, or data-handling features change.</p>
         </section>
       </div>
     </article>
   </div>
 </template>
+
+<script setup lang="ts">
+const config = useRuntimeConfig()
+const operatorName = String(config.public.operatorName || 'the operator')
+const contactEmail = String(config.public.contactEmail || '')
+</script>
