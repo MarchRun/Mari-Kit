@@ -23,11 +23,12 @@ logs
 .env.*
 !.env.example
 
-# Agent Framework Documentation
-PROJECT-CONTEXT.md
-PROJECT-RULES.md
-ROADMAP.md
-PRODUCT.md
+# Operator notes
 DEPLOYMENT.md
+MANUAL-VERIFICATION.md
 coverage
 .vscode
+
+# Private agent and planning documents
+.agents/
+openspec/

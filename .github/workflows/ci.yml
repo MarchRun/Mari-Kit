@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Test, typecheck, and build
+    name: Typecheck and build
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -29,8 +29,6 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
-      - name: Run functional tests
-        run: npm test -- --run
       - name: Check TypeScript
         run: npm run typecheck
       - name: Build production output

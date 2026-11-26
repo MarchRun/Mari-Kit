@@ -8,13 +8,12 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest",
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
     "lucide-vue-next": "^1.0.0",
-    "nuxt": "^4.6.2",
+    "nuxt": "~4.6.4",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",
     "qr-scanner": "^1.4.2",

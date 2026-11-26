@@ -4,5 +4,7 @@
     <main>
       <NuxtPage />
     </main>
+    <AppUpdateNotice />
+    <AppOfflineNotice />
   </div>
 </template>

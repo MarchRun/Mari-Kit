@@ -128,6 +128,7 @@
 import type { Component } from 'vue'
 import {
   Files,
+  FileText,
   Hash,
   KeyRound,
   LayoutGrid,
@@ -146,7 +147,7 @@ import {
   watch
 } from 'vue'
 
-type ToolCategory = 'documents' | 'qr' | 'security'
+type ToolCategory = 'documents' | 'files' | 'qr' | 'security'
 type CategoryFilter = 'all' | ToolCategory
 
 interface Tool {
@@ -182,6 +183,14 @@ const tools: Tool[] = [
     icon: LayoutGrid,
     category: 'documents',
     categoryLabel: 'Documents'
+  },
+  {
+    title: 'File Metadata Remover',
+    description: 'Remove EXIF, document, and editor metadata from JPEG, PNG, WebP, SVG, and PDF files in your browser.',
+    link: '/files/metadata',
+    icon: FileText,
+    category: 'files',
+    categoryLabel: 'Files'
   },
   {
     title: 'QR Generator',
@@ -223,6 +232,7 @@ const categories: Array<{
 }> = [
   { value: 'all', label: 'All' },
   { value: 'documents', label: 'Documents' },
+  { value: 'files', label: 'Files' },
   { value: 'qr', label: 'QR Codes' },
   { value: 'security', label: 'Security' }
 ]

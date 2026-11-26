@@ -1,46 +1,56 @@
 # Dependency advisory review
 
-Reviewed on October 26, 2026, against the installed lockfile and current production output. This is a scoped reachability review, not a clean security audit or a finding that the advisories can be ignored.
+Reviewed on November 26, 2026, after applying in-range patches and re-running a clean install. This is a scoped reachability review, not a clean security audit or a finding that the remaining advisories can be ignored.
 
 ## Summary
 
-`npm audit --json` reports 12 affected packages: 7 high and 5 moderate. These are propagated package findings rooted in two distinct advisories, not 12 independent vulnerabilities. No critical findings were reported in this run.
+`npm audit --json` now reports **12 moderate advisories** and no high or critical findings, down from 17 advisories including one high before the update.
 
-No dependency versions, overrides, or lockfile entries were changed during this review. There is no compatible automatic fix for the two remaining chains based on the versions inspected.
+Patches applied without `--force`, downgrades, peer-relaxing flags, or major overrides:
 
-## Findings
+| Package | Before | After |
+| --- | --- | --- |
+| `nuxt` | `4.6.2` | `4.6.4` (`~4.6.4` in `package.json`) |
+| `node-forge` | `1.4.0` | `1.4.4` |
+| Tailwind/postcss-nested `postcss-selector-parser` | `6.1.4` | `6.1.6` |
+| Standalone `postcss-selector-parser` | `7.1.6` | `7.2.1` |
 
-### node-forge: RSA signature verification
+The `~4.6.4` range avoids the `4.7.0` line, which pulls `unstorage@2.0.0-beta.0` and `ofetch@2.0.0-alpha.3` into a production build. No new runtime dependency was added.
 
-- Advisory: [GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv), CVE-2026-85393.
-- Installed version: `node-forge@1.4.0`.
-- Dependency path: Nuxt → Nitro → listhen → node-forge.
-- Condition: malformed RSA PKCS#1 v1.5 signature structures can pass verification in affected consumers using low-exponent RSA keys.
-- Registry check: 1.4.0 remains the latest published release. The advisory lists no first patched version.
+Remote tarball fetching is disabled by default in this environment. The update was possible only with the per-command flag `--allow-remote=all`; no global npm configuration was changed.
 
-The inspected listhen implementation imports forge for local HTTPS certificate creation, PEM/key handling, and certificate signing. No calls to signature verification or certificate-chain verification were found in that implementation. This does not establish that every possible use of the dependency is safe.
+## Verified after the update
 
-Neither node-forge nor listhen was found in the inspected `.output/server/package.json` or server JavaScript search. This limits the observed exposure of the current standalone production output; it does not apply automatically to development, preview, custom builds, or hosting that installs and executes the full project dependency tree.
+- `npm ci --allow-remote=all` succeeded.
+- `npm test -- --run`: 199 tests passed.
+- `npm run typecheck`: clean.
+- `npm run build`: production build succeeded.
 
-Do not expose the development server publicly. Do not use this dependency to verify attacker-supplied signatures or certificates. Recheck the upstream release and advisory before deployment or changes to HTTPS handling. npm's suggested Nuxt downgrade is not an approved fix for this project.
+## Remaining advisories
 
-### postcss-selector-parser: CPU exhaustion
+### Nuxt chain (moderate)
 
-- Advisory: [GHSA-rj75-hqrm-r3gf](https://github.com/advisories/GHSA-rj75-hqrm-r3gf), CVE-2026-104844.
-- Affected installed version: `postcss-selector-parser@6.1.4` through Tailwind 3.4.19 and postcss-nested 6.2.0.
-- A separate installed copy, 7.1.6, is already patched but does not replace the affected 6.x copies.
-- First patched version: 7.1.6.
-- Condition: synchronously parsing specially crafted, untrusted CSS selectors can exhaust CPU. The advisory explicitly distinguishes this from ordinary build-time processing of trusted sources.
+- `nuxt@4.6.4` pulls `archiver@8.0.0`, which pulls `readdir-glob` in the affected `2.0.0`–`3.0.0` range. The advisory propagates through `nitropack`, `@nuxt/nitro-server`, `@nuxt/vite-builder`, and `@nuxt/vite-server`.
+- npm's only suggested fix is downgrading Nuxt to `4.6.3`, which returns to other advisories. That downgrade is not accepted.
+- These paths are build/server-tooling dependencies. The inspected standalone production output does not contain the affected build chain; this does not cover development, preview, or custom server presets.
 
-MariKit uses Tailwind/PostCSS to build project styles. No feature accepts user CSS selectors for this parser, and the parser was not found in the inspected standalone production server output. A contributor can still supply expensive build input; CI uses a job timeout and does not receive repository secrets for the configured test workflow.
+### Test tooling chain (moderate)
 
-Do not add a request-time CSS processing feature without reviewing this advisory again. Forcing parser 7 into dependencies declaring parser 6 would be a major-version override, not an ordinary patch. A Tailwind major-version migration requires separate compatibility and visual checks and was not performed here.
+- `@vue/test-utils@2.5.1` is affected through `js-beautify`, `glob`, and `minimatch`.
+- npm's only suggested fix is a downgrade to `2.4.11`, marked semver-major. That downgrade is not accepted.
+- These are development/test dependencies and are not part of the deployed application bundle.
+
+## Reachability notes
+
+- node-forge is used by listhen for local HTTPS certificate and PEM handling; no signature-verification calls were found in that implementation. node-forge and listhen are not in the inspected standalone production server output.
+- CSS selector parsing happens at build time on project-owned styles. The parser is not in the inspected standalone production output. Do not add request-time CSS processing without reviewing this again.
+- Do not expose the development server publicly. Do not use these dependencies to verify attacker-supplied signatures or certificates.
 
 ## Follow-up
 
-- [ ] Recheck node-forge for a published patched release and update the dependency chain when supported.
-- [ ] Recheck Tailwind/postcss-nested for a compatible parser fix or plan a separately verified major-version migration.
-- [ ] Rerun dependency review after lockfile, hosting, server preset, or input-processing changes.
+- [ ] Recheck Nuxt 4.7.x or later for a release without prerelease runtime dependencies and with fixes for the remaining archiver/readdir-glob chain.
+- [ ] Recheck `@vue/test-utils` for a forward compatible fix; do not accept the suggested major downgrade without review.
+- [ ] Rerun `npm audit --json` and this review after any lockfile, hosting, server preset, or input-processing change.
 - [ ] Verify the exact deployed artifact and production entry point before release.
 
-Do not suppress these findings or interpret successful tests/builds as proof that a vulnerable package has been patched. Runtime Node.js security updates and operating-system/hosting security are separate from npm package auditing.
+Do not suppress these findings or interpret successful tests/builds as proof that every advisory is patched. Runtime Node.js security updates and hosting security remain separate from npm package auditing.

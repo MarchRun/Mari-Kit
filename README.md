@@ -11,8 +11,9 @@ MariKit is still under development. Some tools may be incomplete or change as th
 Current areas of development include:
 
 - PDF utilities
+- File metadata removal for JPEG, PNG, WebP, SVG, and PDF
 - QR code generation and scanning
-- Encryption and hashing utilities
+- Password generation and hashing utilities
 
 ## Built with
 
@@ -20,7 +21,6 @@ Current areas of development include:
 - Vue
 - TypeScript
 - Tailwind CSS
-- Vitest
 
 ## Run locally
 
@@ -60,19 +60,15 @@ You can also generate a static build:
 npm run generate
 ```
 
-## Tests
+## Install and offline use
 
-Run the test suite with:
+MariKit can be installed from a supporting browser with the **Install app** control on the homepage. Browsers that cannot install it show an unavailable message; there is no separate application download.
 
-```bash
-npm test
-```
+After a page has been opened online, the service worker keeps that page and the static assets it needs so the page can reopen when the network is unavailable. Pages that have never been opened show an offline notice instead. Two online visits may be needed before every lazily loaded script for a page is cached.
 
-Run the full suite once:
+The cache holds pages, scripts, styles, fonts, icons, and the manifest only. Tool input, filenames, and results are never cached. Clearing site data removes the cache, and the tools keep working online.
 
-```bash
-npm test -- --run
-```
+## Checks
 
 Run type checking:
 
@@ -80,13 +76,11 @@ Run type checking:
 npm run typecheck
 ```
 
-See [the functional test catalogue](tests/README.md) for the tested scenarios, real PDF/QR integration checks, simulated browser APIs, and remaining device/browser verification requirements.
-
 ### Continuous integration
 
-The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch using Node.js 24 on Ubuntu 24.04. It installs dependencies with `npm ci`, then runs the tests, type checking, and production build. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
+The [CI workflow](.github/workflows/ci.yml) runs on pushes, pull requests, and manual dispatch using Node.js 24 on Ubuntu 24.04. It installs dependencies with `npm ci`, then runs type checking and the production build. It does not deploy the application or require repository secrets. Action references are pinned to commit SHAs.
 
-After pushing the workflow, check the repository's Actions tab for its first result. Requiring CI before merging is a separate repository ruleset setting; the workflow does not enable it automatically.
+Requiring CI before merging is a separate repository ruleset setting; the workflow does not enable it automatically.
 
 ## Project structure
 
